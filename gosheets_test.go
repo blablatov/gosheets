@@ -6,10 +6,6 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
-
-	"golang.org/x/oauth2/google"
-	"google.golang.org/api/option"
-	"google.golang.org/api/sheets/v4"
 )
 
 func Test(t *testing.T) {
@@ -107,20 +103,15 @@ func TestContext(t *testing.T) {
 }
 
 func TestReadFile(t *testing.T) {
-	fname := "credentials.json"
-	fn, err := ioutil.ReadFile(fname)
-	if err != nil {
+	fname := "/.credentials.json"
+	_, err := ioutil.ReadFile(fname)
+	if err == nil {
 		t.Fatalf("ReadFile %s: error expected, none found", fname)
 	}
 
-	config, err := google.ConfigFromJSON(fn, "https://www.googleapis.com/auth/spreadsheets.readonly")
+	fname = "./gosheets_test.go"
+	_, err = ioutil.ReadFile(fname)
 	if err != nil {
-		t.Errorf("Не удалось разобрать секретный файл клиента для конфигурации: %v", err)
-		client := getClient(config)
-		ctx := context.Background()
-		_, err := sheets.NewService(ctx, option.WithHTTPClient(client))
-		if err != nil {
-			t.Errorf("Не удалось получить Таблицы клиента: %v", err)
-		}
+		t.Fatalf("ReadFile %s: %v", fname, err)
 	}
 }
