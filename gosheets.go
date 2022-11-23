@@ -6,7 +6,6 @@ package main
 
 import (
 	"bufio"
-	"cmweipost"
 	"context"
 	"encoding/json"
 	"fmt"
