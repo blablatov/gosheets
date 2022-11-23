@@ -1,8 +1,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"io/ioutil"
+	"strings"
 	"testing"
+
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/option"
+	"google.golang.org/api/sheets/v4"
 )
 
 func Test(t *testing.T) {
@@ -72,6 +79,48 @@ func Test(t *testing.T) {
 		if test.value != prevvalue {
 			fmt.Printf("\n%s\n", test.weight)
 			prevvalue = test.value
+		}
+	}
+}
+
+func TestSplit(t *testing.T) {
+	s, sep := "modbus_tcp:ReadCoils:16", ":"
+	durl := strings.Split(s, sep)
+	if got, want := len(durl), 3; got != want {
+		t.Errorf("Split (%q%q) return %d param, but should: %d", s, sep, got, want)
+	}
+}
+
+func TestContext(t *testing.T) {
+	ctx := context.Background()
+	if ctx == nil {
+		t.Fatalf("Background returned nil")
+	}
+	select {
+	case x := <-ctx.Done():
+		t.Errorf("ctx.Done == %v hould block", x)
+	default:
+	}
+	if gt, wnt := fmt.Sprint(ctx), "context.Background"; gt != wnt {
+		t.Errorf("Background().String() = %q want %q", gt, wnt)
+	}
+}
+
+func TestReadFile(t *testing.T) {
+	fname := "credentials.json"
+	fn, err := ioutil.ReadFile(fname)
+	if err != nil {
+		t.Fatalf("ReadFile %s: error expected, none found", fname)
+	}
+
+	config, err := google.ConfigFromJSON(fn, "https://www.googleapis.com/auth/spreadsheets.readonly")
+	if err != nil {
+		t.Errorf("Не удалось разобрать секретный файл клиента для конфигурации: %v", err)
+		client := getClient(config)
+		ctx := context.Background()
+		_, err := sheets.NewService(ctx, option.WithHTTPClient(client))
+		if err != nil {
+			t.Errorf("Не удалось получить Таблицы клиента: %v", err)
 		}
 	}
 }

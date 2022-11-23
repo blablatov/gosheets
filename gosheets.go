@@ -6,6 +6,7 @@ package main
 
 import (
 	"bufio"
+	"cmweipost"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -36,6 +37,12 @@ type SheetData struct {
 	weight                  string `json:"weight"`
 	plan_default            string `json:"plan_default"`
 	value                   string `json:"value"`
+}
+
+// Anonymous field. Composition for secure access to types and methods of the `cmweipost` package.
+// Анонимное поле. Композиция для безопасного доступа к типам и методам пакета `cmweipost`.
+type embtypes struct {
+	cmweipost.DataPost
 }
 
 // Getting token, saving token, returning generated client.
@@ -139,10 +146,14 @@ func main() {
 	// Getting `mo_id` via request to the `get_mo` of server method.
 	// Run getmo function in goroutine.
 	// Получение `mo_id` через запрос к методу `get_mo` сервера.
-	// Getting data URL from config file. Метод получения URL из конфига.
+	// Getting data URL from config file. Получение URL из конфига.
 	cnurl := make(chan string)
 	go func() {
-		cnurl <- ReadUrlServ()
+		ptrn := regexp.MustCompile(`https://testdb.kpi-drive.ru/_api/mo/get_mo`)
+		gurl := ReadUrlServ()
+		gstr := ptrn.FindAllString(gurl, -1)
+		url := fmt.Sprint(gstr)
+		cnurl <- url
 	}()
 	apiUrl := <-cnurl
 
@@ -275,6 +286,36 @@ func main() {
 						close(cp)
 						close(cf)
 					}()
+
+					// Option one.
+					// Calling an interface method via struct embedding.
+					// Вызов метода ReadCoils, через встроенную структуру.
+					start4 := time.Now()
+					var w embtypes
+
+					// Formating data of structure. Заполнение структуры.
+					w.DataPost.Indicator_to_mo_fact_id = sp.indicator_to_mo_fact_id
+					w.DataPost.Indicator_to_mo_id = sp.indicator_to_mo_id
+					w.DataPost.Weight = sp.weight
+
+					// Getting data URL from config file. Получение URL из конфига.
+					cnurlw := make(chan string)
+					go func() {
+						ptrn := regexp.MustCompile(`https://testdb.kpi-drive.ru/_api/indicators/save_indicator_instance_field`)
+						gurl := ReadUrlServ()
+						gstr := ptrn.FindAllString(gurl, -1)
+						url := fmt.Sprint(gstr)
+						cnurlw <- url
+					}()
+					w.ApiUrlw = <-cnurlw
+
+					res, err := embtypes.WPostSend(w)
+					if err != nil {
+						log.Fatalf("Error of method: %v", err)
+					}
+					log.Println("Result of request an interface method via struct embedding: ", res)
+					secs4 := time.Since(start4).Seconds()
+					fmt.Printf("%.2fs Request execution time via method WPostSend of struct embedding\n", secs4)
 				}
 			}
 		}
