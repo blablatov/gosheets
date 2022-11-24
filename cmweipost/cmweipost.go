@@ -8,6 +8,10 @@ import (
 	"strings"
 )
 
+type DataWPoster interface {
+	WPostSend() (string, error)
+}
+
 type DataPost struct {
 	Indicator_to_mo_fact_id string `json:"indicator_to_mo_fact_id"`
 	Indicator_to_mo_id      string `json:"indicator_to_mo_id"`

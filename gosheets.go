@@ -37,6 +37,7 @@ type SheetData struct {
 	weight                  string `json:"weight"`
 	plan_default            string `json:"plan_default"`
 	value                   string `json:"value"`
+	url                     string `json:"url"`
 }
 
 // Anonymous field. Composition for secure access to types and methods of the `cmweipost` package.
@@ -48,9 +49,9 @@ type embtypes struct {
 // Getting token, saving token, returning generated client.
 // Получение токена, сохранение токена, возвращение сгенерированного клиента.
 func getClient(config *oauth2.Config) *http.Client {
-	// The token.json file stores access tokens and  updates it,
+	// The `token.json` file stores access tokens and  updates it,
 	// created automatically on first login.
-	// В файле token.json хранятся токены доступа и обновления пользовательского доступа,
+	// В файле `token.json` хранятся токены доступа и обновления пользовательского доступа,
 	// созданные автоматически при первой авторизации.
 	tokFile := "token.json"
 	tok, err := tokenFromFile(tokFile)
@@ -130,8 +131,8 @@ func main() {
 		log.Fatalf("Не удалось прочитать секретный файл клиента: %v", err)
 	}
 
-	// If one change these areas, one must delete previously saved token.json file.
-	// При изменении этих областей надо удалить ранее сохраненный файл token.json.
+	// If one change these areas, one must delete previously saved `token.json` file.
+	// При изменении этих областей надо удалить ранее сохраненный файл `token.json`.
 	config, err := google.ConfigFromJSON(b, "https://www.googleapis.com/auth/spreadsheets.readonly")
 	if err != nil {
 		log.Fatalf("Не удалось разобрать секретный файл клиента для конфигурации: %v", err)
@@ -159,7 +160,7 @@ func main() {
 
 	go getmo.GetMoid(apiUrl, cg)
 	sp.indicator_to_mo_id = <-cg // Get data from channel of gorutine. Получение данных из канала горутины.
-	//sp.indicator_to_mo_id = "994" //For debug, indicator mo_id. Для отладки.
+	//sp.indicator_to_mo_id = "994" //For debug, `indicator mo_id`. Для отладки.
 	fmt.Println("\n Результат запроса get: ", sp.indicator_to_mo_id)
 	secs := time.Since(start).Seconds()
 	fmt.Printf(" %.2fs время выполнения запроса\n", secs)
@@ -179,8 +180,8 @@ func main() {
 	if len(resm.Values) == 0 {
 		fmt.Println("Данные столбца не найдены.")
 	} else {
-		// Get row data for each mo_id of table in loop.
-		// Получить в цикле данные строки для каждого mo_id таблицы.
+		// Get row data for each `mo_id` of table in loop.
+		// Получить в цикле данные строки для каждого `mo_id` таблицы.
 		for _, rowm := range resm.Values {
 			if rowm != nil {
 				mid := fmt.Sprint(rowm)
@@ -287,9 +288,10 @@ func main() {
 						close(cf)
 					}()
 
+					//////////////////////////////
 					// Option one.
-					// Calling an interface method via struct embedding.
-					// Вызов метода ReadCoils, через встроенную структуру.
+					// Calling a method `WPostSend` get `Weight` via struct embedding.
+					// Вызов метода `WPostSend` получение `Веса`, через встроенную структуру.
 					start4 := time.Now()
 					var w embtypes
 
@@ -308,7 +310,10 @@ func main() {
 						cnurlw <- url
 					}()
 					w.ApiUrlw = <-cnurlw
+					sp.url = w.ApiUrlw //Save val of var for option two. Хранить url для метода интерфейса.
 
+					// Calling a method via embedding struct.
+					// Вызов метода `WPostSend` через встроенную структуру.
 					res, err := embtypes.WPostSend(w)
 					if err != nil {
 						log.Fatalf("Error of method: %v", err)
@@ -316,6 +321,31 @@ func main() {
 					log.Println("Result of request an interface method via struct embedding: ", res)
 					secs4 := time.Since(start4).Seconds()
 					fmt.Printf("%.2fs Request execution time via method WPostSend of struct embedding\n", secs4)
+
+					///////////////////////////////////////
+					// Option two.
+					// Calling a method `WPostSend` get `Weight` via interface.
+					// Вызов метода `WPostSend` получение `Веса`, через интерфейс.
+					// Formating data of structure. Заполнение структуры.
+					start5 := time.Now()
+					din := cmweipost.DataPost{
+						Indicator_to_mo_fact_id: sp.indicator_to_mo_fact_id,
+						Indicator_to_mo_id:      sp.indicator_to_mo_id,
+						Weight:                  sp.weight,
+						ApiUrlw:                 sp.url,
+					}
+
+					// Calling an interface method.
+					// Вызов метода `WPostSend` интерфейса.
+					var p cmweipost.DataWPoster = din
+					dr, err := p.WPostSend()
+					if err != nil {
+						log.Fatalf("Error of method: %v", err)
+					}
+					fmt.Println("Result of request via interface method WPostSend: ", dr)
+					secs5 := time.Since(start5).Seconds()
+					fmt.Printf("%.2fs Request execution time via method WPostSend of interface\n", secs5)
+
 				}
 			}
 		}

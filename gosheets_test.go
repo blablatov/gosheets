@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 	"testing"
 )
@@ -102,16 +103,27 @@ func TestContext(t *testing.T) {
 	}
 }
 
+func checkSize(t *testing.T, path string, size int64) {
+	dir, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("Stat %q (looking for size %d): %s", path, size, err)
+	}
+	if dir.Size() != size {
+		t.Errorf("Stat %q: size %d want %d", path, dir.Size(), size)
+	}
+}
+
 func TestReadFile(t *testing.T) {
 	fname := "/.credentials.json"
-	_, err := ioutil.ReadFile(fname)
+	fn, err := ioutil.ReadFile(fname)
 	if err == nil {
 		t.Fatalf("ReadFile %s: error expected, none found", fname)
 	}
 
 	fname = "./gosheets_test.go"
-	_, err = ioutil.ReadFile(fname)
+	fn, err = ioutil.ReadFile(fname)
 	if err != nil {
 		t.Fatalf("ReadFile %s: %v", fname, err)
 	}
+	checkSize(t, fname, int64(len(fn)))
 }
