@@ -2,7 +2,7 @@
 // Основной пакет модуля, для копирования данных Вес, План, Факт из ячеек google-таблицы в программу вебсервиса KPI.
 // www.kpi-drive.ru
 
-package gosheets
+package main
 
 import (
 	"bufio"
