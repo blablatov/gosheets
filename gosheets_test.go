@@ -85,8 +85,7 @@ func Test(t *testing.T) {
 func TestGetClient(t *testing.T) {
 	var tests = []struct {
 		tokFile string
-		//config  *oauth2.Config
-		want bool
+		want    bool
 	}{
 		{"token.json", true},
 	}
@@ -101,12 +100,12 @@ func TestGetClient(t *testing.T) {
 		},
 	}
 	for _, test := range tests {
-		if got := GetClient(conf); got != nil {
+		if got := getClient(conf); got != nil {
 			t.Errorf("func getClient(%q) = %v", conf, got)
 		}
-		if gotf, _ := TokenFromFile(test.tokFile); gotf != nil {
+		if gotf, _ := tokenFromFile(test.tokFile); gotf != nil {
 			t.Errorf("func tokenFromFile(%q) = %v", test.tokFile, gotf)
-			if SaveToken(test.tokFile, gotf); test.tokFile != "" && gotf != nil {
+			if saveToken(test.tokFile, gotf); test.tokFile != "" && gotf != nil {
 				t.Errorf("func save patch to token file(%q) = %v", test.tokFile, gotf)
 			}
 		}
