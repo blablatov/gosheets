@@ -48,22 +48,22 @@ type embtypes struct {
 
 // Getting token, saving token, returning generated client.
 // Получение токена, сохранение токена, возвращение сгенерированного клиента.
-func getClient(config *oauth2.Config) *http.Client {
+func GetClient(config *oauth2.Config) *http.Client {
 	// The `token.json` file stores access tokens and  updates it,
 	// created automatically on first login.
 	// В файле `token.json` хранятся токены доступа и обновления пользовательского доступа,
 	// созданные автоматически при первой авторизации.
 	tokFile := "token.json"
-	tok, err := tokenFromFile(tokFile)
+	tok, err := TokenFromFile(tokFile)
 	if err != nil {
-		tok = getTokenFromWeb(config)
-		saveToken(tokFile, tok)
+		tok = GetTokenFromWeb(config)
+		SaveToken(tokFile, tok)
 	}
 	return config.Client(context.Background(), tok)
 }
 
 // Request token via web, return got token. // Запросить токен через веб, вернуть извлеченный токен.
-func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
+func GetTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Перейдите по ссылке в браузере и введите  "+
 		"код авторизации: \n%v\n", authURL)
@@ -81,7 +81,7 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 }
 
 // Get token from local file. Получить токен из локального файла.
-func tokenFromFile(file string) (*oauth2.Token, error) {
+func TokenFromFile(file string) (*oauth2.Token, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 }
 
 // Save path to token file. Сохранить путь к файлу токена.
-func saveToken(path string, token *oauth2.Token) {
+func SaveToken(path string, token *oauth2.Token) {
 	fmt.Printf("Сохранение файла учетных данных в: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
@@ -137,7 +137,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Не удалось разобрать секретный файл клиента для конфигурации: %v", err)
 	}
-	client := getClient(config)
+	client := GetClient(config)
 
 	srv, err := sheets.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {

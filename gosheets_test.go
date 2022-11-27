@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"golang.org/x/oauth2"
-	"golang.org/x/oauth2/google"
 )
 
 func Test(t *testing.T) {
@@ -101,14 +100,13 @@ func TestGetClient(t *testing.T) {
 			AuthURL:  "https://google.com/o/oauth2/auth",
 		},
 	}
-	//tokFile := "token.json"
 	for _, test := range tests {
-		if got := getClient(conf); got != nil {
+		if got := GetClient(conf); got != nil {
 			t.Errorf("func getClient(%q) = %v", conf, got)
 		}
-		if gotf, _ := tokenFromFile(test.tokFile); gotf != nil {
+		if gotf, _ := TokenFromFile(test.tokFile); gotf != nil {
 			t.Errorf("func tokenFromFile(%q) = %v", test.tokFile, gotf)
-			if saveToken(test.tokFile, gotf); test.tokFile != "" && gotf != nil {
+			if SaveToken(test.tokFile, gotf); test.tokFile != "" && gotf != nil {
 				t.Errorf("func save patch to token file(%q) = %v", test.tokFile, gotf)
 			}
 		}
