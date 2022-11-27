@@ -1,7 +1,7 @@
 ## gosheets
 ### Ru
 
-Тестовый модуль для копирования данных `Вес`, `План`, `Факт` из ячеек google-таблицы в программу вебсервиса KPI. 
+Тестовый модуль для копирования данных `Вес`, `План`, `Факт` из ячеек google-таблицы в программу вебсервиса KPI.   
 Строка запуска модуля:
 
     gosheets 1A663PCe8LUilZ-tWbImbj4vlSikymqRBPA62gDVVddw
@@ -9,7 +9,7 @@
 где:
 > `1A663PCe8LUilZ-tWbImbj4vlSikymqRBPA62gDVVddw` -- ID google-таблицы, берется из URL таблицы `Google Sheets`
 
-Для аутентификации модуля на Google-сервисе необходимо получить credentials.json и token.json файлы
+Для аутентификации модуля на Google-сервисе необходимо получить `credentials.json` и `token.json` файлы.  
 Алгоритм получения:
 >1. Зайти на [APIs & Services](https://console.cloud.google.com/apis/credentials)
 >2. Выбрать слева `Credentials`.
