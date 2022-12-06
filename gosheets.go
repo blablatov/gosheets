@@ -150,10 +150,9 @@ func main() {
 	// Getting data URL from config file. Получение URL из конфига.
 	cnurl := make(chan string)
 	go func() {
-		ptrn := regexp.MustCompile(`https://testdb.kpi-drive.ru/_api/mo/get_mo`)
+		var pattern = regexp.MustCompile(`https://testdb.kpi-drive.ru/_api/mo/get_mo`)
 		gurl := ReadUrlServ()
-		gstr := ptrn.FindAllString(gurl, -1)
-		url := fmt.Sprint(gstr)
+		url := pattern.FindString(gurl)
 		cnurl <- url
 	}()
 	apiUrl := <-cnurl
